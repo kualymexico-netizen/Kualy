@@ -1,0 +1,35 @@
+{
+  "entities": {
+    "structure": {
+      "title": "Estructura Nacional",
+      "description": "Registro oficial de ciudadanos y unidades en la estructura nacional.",
+      "type": "object",
+      "properties": {
+        "voterId": { "type": "string", "description": "Clave de Elector (IFE/INE)" },
+        "name": { "type": "string", "description": "Nombre de la Unidad / Ciudadano" },
+        "type": { "type": "string", "description": "Jerarquía (Nacional, Estatal, etc)" },
+        "level": { "type": "string", "description": "Nivel administrativo" },
+        "state": { "type": "string", "description": "Estado" },
+        "municipality": { "type": "string", "description": "Municipio" },
+        "street": { "type": "string" },
+        "extNumber": { "type": "string" },
+        "intNumber": { "type": "string" },
+        "neighborhood": { "type": "string" },
+        "zipCode": { "type": "string" },
+        "phone": { "type": "string" },
+        "phoneRef": { "type": "string" },
+        "officer": { "type": "string", "description": "Titular o Responsable" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["voterId", "name", "type", "street", "neighborhood", "zipCode", "phone"]
+    }
+  },
+  "firestore": {
+    "/structures/{structureId}": {
+      "schema": "structure",
+      "description": "Base de datos unificada de la estructura"
+    }
+  }
+}

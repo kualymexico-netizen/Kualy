@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation for Structure Entity
+    function isValidStructure(data) {
+      return data.voterId is string && data.voterId.size() <= 50 &&
+             data.name is string && data.name.size() <= 200 &&
+             data.type is string && data.type.size() <= 50 &&
+             data.street is string && data.street.size() <= 200 &&
+             data.neighborhood is string && data.neighborhood.size() <= 200 &&
+             data.zipCode is string && data.zipCode.size() <= 10 &&
+             data.phone is string && data.phone.size() <= 20;
+    }
+
+    match /structures/{structureId} {
+      // allow read: if isSignedIn(); // Restricted list check below
+      
+      allow get: if isSignedIn();
+      
+      allow list: if isSignedIn(); // In a real app we would filter by owner, but for this structure it's a global catalog
+
+      allow create: if isSignedIn() && 
+                      isValidStructure(incoming()) && 
+                      incoming().createdAt == request.time;
+
+      allow update: if isSignedIn() && 
+                      isValidStructure(incoming()) && 
+                      incoming().updatedAt == request.time &&
+                      // Action: Standard update
+                      (incoming().diff(existing()).affectedKeys().hasOnly(['voterId', 'name', 'type', 'officer', 'street', 'extNumber', 'intNumber', 'neighborhood', 'zipCode', 'phone', 'phoneRef', 'updatedAt']));
+      
+      allow delete: if isSignedIn(); // Only admins should delete in prod, but for demo we allow it
+    }
+  }
+}
